@@ -99,13 +99,31 @@ WHERE salary >= 60000000
 
 
 -- 10. 성별이 여자인 사원들의 직급별 사원수를 출력해 주세요.
-
-gender = 'F'
+SELECT tite.title_code, tit.title, COUNT(tite.emp_id) AS cnt
+FROM employees emp
+	JOIN title_emps tite
+		ON emp.emp_id = tite.emp_id
+			AND emp.fire_at IS null
+			AND tite.end_at IS NULL
+			AND emp.gender = 'F'
+	JOIN titles tit
+		ON tit.title_code = tite.title_code
+GROUP BY tite.title_code, tit.title
+ORDER BY tite.title_code, tit.title;
 
 -- ------------------------------
--- 전체 평균 급여보다 높은 급여를 받은 기록을 조회
-SELECT AVG(salary) 
-FROM salaries
+-- 전체 평균 급여보다 높은 급여를 받는 사원의 사번, 이름, 현재급여 조회
+SELECT emp.emp_id, emp.`name`, sal.salary 
+FROM employees emp
+	JOIN salaries sal
+	ON emp.emp_id = sal.emp_id
+		AND sal.end_at IS null
+		AND emp.fire_at IS NULL
+WHERE sal.salary >= (
+	SELECT AVG(salary)
+	FROM salaries
+	WHERE end_at IS null
+);
 
 
 
@@ -115,4 +133,15 @@ FROM employees emp
 	JOIN salaries sal
 	ON emp.emp_id = sal.emp_id
 MAX salary;
+
+=> 답
+SELECT emp_id, salary
+FROM salaries
+WHERE salary = (
+	SELECT MAX(salary)
+	FROM salaries
+);
+
+
+
 
